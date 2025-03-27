@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concurso de Bandas Sonoras</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background-color: #222; color: white; }
+        .red-button { background-color: red; color: white; font-size: 24px; padding: 20px; border: none; border-radius: 10px; cursor: pointer; width: 200px; }
+        #log { max-width: 400px; margin: auto; background: black; padding: 10px; border-radius: 10px; text-align: left; height: 200px; overflow-y: auto; }
+        input { font-size: 18px; padding: 10px; margin: 10px; }
+        .chat-message { padding: 5px; border-bottom: 1px solid gray; }
+    </style>
+</head>
+<body>
+
+    <h1>¡Concurso de Bandas Sonoras!</h1>
+    
+    <input type="text" id="nombreUsuario" placeholder="Ingresa tu nombre" />
+    <button class="red-button" onclick="presionarBoton()">¡PULSAR!</button>
+
+    <h2>Registro en tiempo real</h2>
+    <div id="log"></div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // Conectar al servidor Socket.io
+        const socket = io();
+
+        // Al hacer clic en el botón, enviar el nombre y emitir la pulsación
+        function presionarBoton() {
+            const nombreUsuario = document.getElementById("nombreUsuario").value.trim();
+            if (!nombreUsuario) {
+                alert("Debes ingresar un nombre.");
+                return;
+            }
+
+            // Emitir el evento de pulsación al servidor
+            socket.emit('pulsacion', nombreUsuario);
+        }
+
+        // Escuchar el evento de nuevo registro (pulsación)
+        socket.on('nuevoRegistro', (data) => {
+            const tiempo = new Date(data.timestamp).toLocaleTimeString();
+            const logDiv = document.getElementById('log');
+            const mensaje = document.createElement('div');
+            mensaje.classList.add('chat-message');
+            mensaje.innerHTML = `<b>${data.nombre}</b> pulsó a las ${tiempo}`;
+            logDiv.appendChild(mensaje);
+        });
+    </script>
+
+</body>
+</html>
